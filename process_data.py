@@ -29,7 +29,9 @@ def clean_data(df):
         categories[column] = categories[column].str.slice(start=-1)
         # convert column from string to numeric
         categories[column] = categories[column].astype(int)
-        
+        # binarize values
+        categories.loc[categories[column] > 1, column] = 1
+
     # drop the original categories column from `df`
     df = df.drop(['categories'], axis=1)
     # concatenate the original dataframe with the new `categories` dataframe
@@ -40,7 +42,7 @@ def clean_data(df):
 
 def save_data(df, database_filename):
     engine = create_engine('sqlite:///{}'.format(database_filename))
-    df.to_sql('data', engine, index=False)  
+    df.to_sql('data', engine, index=False, if_exists='replace')
 
 
 def main():

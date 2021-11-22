@@ -4,7 +4,7 @@ import pickle
 import pandas as pd
 from sqlalchemy import create_engine
 from nltk.corpus import stopwords
-from nltk.stem.porter import PorterStemmer
+from nltk.stem.wordnet import WordNetLemmatizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.multioutput import MultiOutputClassifier
@@ -13,6 +13,10 @@ from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
+
+
+# global model
+lemmatizer = WordNetLemmatizer()
 
 
 def load_data(database_filepath):
@@ -41,8 +45,8 @@ def tokenize(text):
     # Remove stop words
     tokens = [w for w in tokens if w not in stopwords.words("english")]
 
-    # Reduce words to their stems
-    tokens = [PorterStemmer().stem(w) for w in tokens]
+    # Reduce words to their lemma
+    tokens = [lemmatizer.lemmatize(w) for w in tokens]
 
     return tokens
 
