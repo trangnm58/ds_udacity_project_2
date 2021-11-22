@@ -1,15 +1,39 @@
 import json
 import plotly
+import re
 import pandas as pd
+import pickle
 import numpy as np
 from sqlalchemy import create_engine
 from flask import Flask
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.corpus import stopwords
 from flask import render_template, request
 from plotly.graph_objs import Bar
 
-from train_classifier import load_model, tokenize
-
 app = Flask(__name__)
+
+# global model
+lemmatizer = WordNetLemmatizer()
+
+
+def tokenize(text):
+    # Convert to lowercase
+    text = text.lower()
+
+    # Remove punctuation characters
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text)
+
+    # Tokenize text
+    tokens = text.split()
+
+    # Remove stop words
+    tokens = [w for w in tokens if w not in stopwords.words("english")]
+
+    # Reduce words to their lemma
+    tokens = [lemmatizer.lemmatize(w) for w in tokens]
+
+    return tokens
 
 
 # load data
@@ -17,7 +41,7 @@ engine = create_engine('sqlite:///../data/disaster_processed.db')
 df = pd.read_sql_table('data', engine)
 
 # load model
-model = load_model('../trained_models/model_v1.0.pkl')
+model = pickle.load(open('../trained_models/model_v1.0.pkl', 'rb'))
 
 
 # index webpage displays cool visuals and receives user input text for model
